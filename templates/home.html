@@ -1,0 +1,111 @@
+<!doctype html>
+    <head>
+        <title>Avionics</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+        <link rel="icon" href='{{ url_for("static", filename="airplaneIcon.png") }}'>
+    </head>
+    <body style='background-image: url("{{ url_for("static", filename="cloud.jpg") }}");background-repeat:no-repeat; background-size:100% 100vh'>
+        <div id='databinding'>
+           <div class='title'>Airline Route</div>
+           <div class='airlineSearch'>
+              <div class='searchField'><div>ICAO</div>
+               <select v-model = 'icao'>
+                  <option v-for="a in icaoList" v-bind:value="a">{% raw %}{{a}}{% endraw %}</option>
+               </select>
+              </div>
+              <div class='searchField'><span>Name of Airline</span>
+                  <select v-model = 'name'>
+                     <option v-for="a in nameList" v-bind:value="a">{% raw %}{{a}}{% endraw %}</option>
+                  </select> 
+              </div>
+              <div class='searchField'><span>Origin</span><input type='text' v-model='origin'/></div>
+              <div class='searchField'><span>Destination</span><input type='text' v-model='destination'/></div>
+              <div class='searchField'><span>Aircraft Type</span><input type='text' v-model='aircrafttype'/></div>
+            </div>
+            <div style='width:fit-content; margin:15px auto'><button @click="searchContent" type='button' class="btn btn-primary">SEARCH</button></div>
+            <div class='Table'>
+               <div class='Heading'>
+                  <div class='Cell'>ICAO code (3 code letter)</div>
+                  <div class='Cell'>Name of airline</div>
+                  <div class='Cell'>Origin</div>
+                  <div class='Cell'>Destination</div>
+                  <div class='Cell'>Aircraft Type</div>
+               </div>
+               <airlineroute
+                  v-for = "(item, index) in airlineRouteData"
+                  v-bind:item = 'item'>
+               </airlineroute>
+            </div>
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.0/vue.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script>
+            Vue.component('airlineroute',{
+               template : '<div class = "Row"  v-bind:style = "styleobj"><div class = "Cell">{% raw %}{{item.icao}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.name}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.origin}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.destination}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.aircraftType}}{% endraw %}</div></div>',
+               props: ['item' , 'index'],
+               data: function() {
+                  return {
+                     styleobj : {
+                        backgroundColor:this.getcolor(),
+                        fontSize : 20
+                     }
+                  }
+               },
+               methods:{
+                  getcolor : function() {
+                     if (this.item.arID % 2) {
+                        return "#FFE633";
+                     } else {
+                        return "#D4CA87";
+                     }
+                  }
+               }
+            });
+         var vm = new Vue({
+            el: '#databinding',
+            data: {
+                emptyFlag:true,
+                icao:'',
+                name:'',
+                origin:'', 
+                destination:'',
+                aircrafttype:'',
+                airlineRouteData:{{content|tojson}},
+                icaoList:{{icao|tojson}},
+                nameList:{{name|tojson}}
+            },
+            mounted:function(){
+               console.log(this.airlineRouteData);
+            },
+            methods :{
+               emptyFields : function(){
+                  this.icao = '';
+                  this.name = '';
+                  this.origin = '';
+                  this.destination = '';
+                  this.aircrafttype = ''
+               },
+               searchContent : function(){
+                  payload = {};
+                  result = [];
+                  payload['icao'] = this.icao;
+                  payload['name'] = this.name;
+                  payload['origin'] = this.origin;
+                  payload['destination'] = this.destination;
+                  payload['aircrafttype'] = this.aircrafttype;
+                  url = window.location.origin + '/searchAirlineRoute';
+                  // payload = JSON.stringify(payload)
+                  axios.post(url, payload).then(response =>{
+                     this.airlineRouteData = response.data
+                     this.emptyFields()
+                  });
+               }
+            }
+         });
+        </script>
+    </body>
+</html>

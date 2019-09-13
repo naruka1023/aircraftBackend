@@ -1,0 +1,44 @@
+.Table{
+    display: table;
+    width:80%;
+    margin:auto
+ }
+ .Heading{
+    display: table-row;
+    font-weight: bold;
+    text-align: center;
+    background-color:white
+ }
+ .airlineSearch{
+    width: 80%;
+    margin: auto;
+    display: flex;
+ }
+ .searchField{
+     width:20%;
+     font-size:1.1em
+ }
+ .searchField input, .searchField select{
+     height:30px;
+     width:90%
+ }
+ .Row{
+    display: table-row;
+ }
+ .Cell{
+    display: table-cell;
+    border: solid;
+    border-width: thin;
+    padding-left: 5px;
+    padding-right: 5px;
+    width:20%;
+ }
+ .title{
+    background-color: white;
+    font-size: 4em;
+    margin: 10vh auto;
+    width: fit-content;
+    margin-bottom: 5vh;
+    padding: 12px 26px;
+    border-radius: 100px;
+ }
