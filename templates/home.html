@@ -5,6 +5,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
         <link rel="icon" href='{{ url_for("static", filename="airplaneIcon.png") }}'>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css" rel="stylesheet" type="text/css" />
     </head>
     <body style='background-image: url("{{ url_for("static", filename="cloud.jpg") }}");background-repeat:no-repeat; background-size:100% 100%'>
         <div id='databinding'>
@@ -66,7 +67,13 @@
                       <option value='In Approval Process'>In Approval Process</option>
                    </select> 
                </div>
-               <div class='searchFieldEquipment'><span>Effective date</span><input type='text' v-model='effectiveDate'/></div>
+               <div class='searchFieldEquipment'>
+                  <div>Effective date</div>   
+                  <div id="datepicker" style='width:95%; margin-top:6px; height:30px' class="input-group date" >
+                     <input v-model='effectiveDate' style='cursor:pointer; margin:unset; height:30px' class="form-control" data-date-format="dd M yyyy" id='dateInput' type="text" readonly />
+                     <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                  </div>
+               </div>
                <div class='searchFieldEquipment'><span>Enforcement</span>
                    <select v-model = 'enforcement'>
                        <option value='Carrier'>Carrier</option>
@@ -105,10 +112,13 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.0/vue.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.js"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script>
+
+
             Vue.component('equipmentdata',{
-               template : '<div class = "Row"  v-bind:style = "styleobj"><div class = "Cell">{% raw %}{{item.region}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.country}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.equipment}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.equipmentRequirement}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.requirementDescription}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.status}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.effectiveDate}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.enforcement}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.effectiveTo}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.reference}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.attachment}}{% endraw %}</div></div>',
+               template : '<div class="Row" v-bind:style = "styleobj"><div class = "Cell">{% raw %}{{item.region}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.country}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.equipment}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.equipmentRequirement}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.requirementDescription}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.status}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.effectiveDate}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.enforcement}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.effectiveTo}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.reference}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.attachment}}{% endraw %}</div></div>',
                props: ['item' , 'index'],
                data: function() {
                   return {
@@ -178,6 +188,11 @@
             },
             mounted:function(){
                console.log(this.airlineRouteData);
+               $('#dateInput').datepicker({
+                  autoclose:true
+               }).datepicker().on(
+                  'changeDate', () => {this.effectiveDate = $('#dateInput').val()}
+               );
             },
             methods :{
                emptyFields : function(){
