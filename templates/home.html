@@ -6,9 +6,10 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
         <link rel="icon" href='{{ url_for("static", filename="airplaneIcon.png") }}'>
     </head>
-    <body style='background-image: url("{{ url_for("static", filename="cloud.jpg") }}");background-repeat:no-repeat; background-size:100% 100vh'>
+    <body style='background-image: url("{{ url_for("static", filename="cloud.jpg") }}");background-repeat:no-repeat; background-size:100% 100%'>
         <div id='databinding'>
            <div class='title'>Airline Route</div>
+
            <div class='airlineSearch'>
               <div class='searchField'><div>ICAO</div>
                <select v-model = 'icao'>
@@ -24,6 +25,7 @@
               <div class='searchField'><span>Destination</span><input type='text' v-model='destination'/></div>
               <div class='searchField'><span>Aircraft Type</span><input type='text' v-model='aircrafttype'/></div>
             </div>
+            
             <div style='width:fit-content; margin:15px auto'><button @click="searchContent" type='button' class="btn btn-primary">SEARCH</button></div>
             <div class='Table'>
                <div class='Heading'>
@@ -38,12 +40,94 @@
                   v-bind:item = 'item'>
                </airlineroute>
             </div>
+
+           <div class='title'>Equipment Database</div>
+
+           <div class='airlineSearch'>
+               <div class='searchFieldEquipment'><div>Region</div>
+                   <select v-model = 'region'>
+                       <option v-for="a in regionList" v-bind:value="a">{% raw %}{{a}}{% endraw %}</option>
+                   </select>
+               </div>
+               <div class='searchFieldEquipment'><span>Country</span>
+                   <select v-model = 'country'>
+                      <option v-for="a in countryList" v-bind:value="a">{% raw %}{{a}}{% endraw %}</option>
+                   </select> 
+               </div>
+               <div class='searchFieldEquipment'><span>Equipmemt</span><input type='text' v-model='equipment'/></div>
+               <div class='searchFieldEquipment'><span>Equipment Requirement</span><input type='text' v-model='equipmentRequirement'/></div>
+           </div>
+           <div class='airlineSearch'>
+               <div class='searchFieldEquipment'><span>Requirement Description</span><input type='text' v-model='requirementDescription'/></div>
+               <div class='searchFieldEquipment'><span>Status</span>
+                   <select v-model = 'status'>
+                      <option value='Effective'>Effective</option>
+                      <option value='Not Effective'>Not Effective</option>
+                      <option value='In Approval Process'>In Approval Process</option>
+                   </select> 
+               </div>
+               <div class='searchFieldEquipment'><span>Effective date</span><input type='text' v-model='effectiveDate'/></div>
+               <div class='searchFieldEquipment'><span>Enforcement</span>
+                   <select v-model = 'enforcement'>
+                       <option value='Carrier'>Carrier</option>
+                       <option value='Route'>Route</option>
+                       <option value='Aircraft type'>Aircraft type</option>
+                       <option value='Carrier/Route'>Carrier/Route</option>
+                   </select> 
+               </div>
+           </div>
+           <div class='airlineSearch'>
+                <div class='searchFieldEquipment'><span>Effective to</span><input type='text' v-model='effectiveTo'/></div>
+                <div class='searchFieldEquipment'><span>Reference</span><input type='text' v-model='reference'/></div>
+                <div class='searchFieldEquipment'><span>Attachment</span><input type='text' v-model='attachment'/></div>
+            </div>
+           <div style='width:fit-content; margin:15px auto'><button @click="searchContentEquipment" type='button' class="btn btn-primary">SEARCH</button></div>
+            <div class='Table equipData'>
+               <div class='Heading'>
+                  <div class='Cell'>Region</div>
+                  <div class='Cell'>Country</div>
+                  <div class='Cell'>Equipment</div>
+                  <div class='Cell'>Equipment Requirement</div>
+                  <div class='Cell'>Requirement Description</div>
+                  <div class='Cell'>Status</div>
+                  <div class='Cell'>Effective Date</div>
+                  <div class='Cell'>Enforcement</div>
+                  <div class='Cell'>Effective to</div>
+                  <div class='Cell'>Reference</div>
+                  <div class='Cell'>Attachment</div>
+               </div>
+               <equipmentdata
+                  v-for = "(item, index) in equipmentData"
+                  v-bind:item = 'item'>
+               </equipmentdata>
+            </div>
         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.0/vue.js"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script>
+            Vue.component('equipmentdata',{
+               template : '<div class = "Row"  v-bind:style = "styleobj"><div class = "Cell">{% raw %}{{item.region}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.country}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.equipment}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.equipmentRequirement}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.requirementDescription}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.status}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.effectiveDate}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.enforcement}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.effectiveTo}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.reference}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.attachment}}{% endraw %}</div></div>',
+               props: ['item' , 'index'],
+               data: function() {
+                  return {
+                     styleobj : {
+                        backgroundColor:this.getcolor(),
+                        fontSize : 20
+                     }
+                  }
+               },
+               methods:{
+                  getcolor : function() {
+                     if (this.item.edID % 2) {
+                        return "lightcyan";
+                     } else {
+                        return "powderblue";
+                     }
+                  }
+               }
+            });
             Vue.component('airlineroute',{
                template : '<div class = "Row"  v-bind:style = "styleobj"><div class = "Cell">{% raw %}{{item.icao}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.name}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.origin}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.destination}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.aircraftType}}{% endraw %}</div></div>',
                props: ['item' , 'index'],
@@ -58,9 +142,9 @@
                methods:{
                   getcolor : function() {
                      if (this.item.arID % 2) {
-                        return "#FFE633";
+                        return "lightcyan";
                      } else {
-                        return "#D4CA87";
+                        return "powderblue";
                      }
                   }
                }
@@ -74,7 +158,21 @@
                 origin:'', 
                 destination:'',
                 aircrafttype:'',
+                region:'',
+                country:'',
+                equipment:'',
+                equipmentRequirement:'',
+                requirementDescription:'',
+                status:'',
+                effectiveDate:'',
+                enforcement:'',
+                effectiveTo:'',
+                reference:'',
+                attachment:'',
                 airlineRouteData:{{content|tojson}},
+                equipmentData:{{equipData|tojson}},
+                countryList:{{country|tojson}},
+                regionList:{{region|tojson}},
                 icaoList:{{icao|tojson}},
                 nameList:{{name|tojson}}
             },
@@ -89,17 +187,54 @@
                   this.destination = '';
                   this.aircrafttype = ''
                },
+               emptyFieldsEquip : function(){
+                  this.region = '';
+                  this.country = '';
+                  this.equipment = '';
+                  this.equipmentRequirement = '';
+                  this.requirementDescription = ''
+                  this.status = ''
+                  this.effectiveDate = '';
+                  this.enforcement = '';
+                  this.effectiveTo = '';
+                  this.reference = '';
+                  this.attachment = ''
+               },
+               searchContentEquipment: function(){
+                    payload = {};
+                    result = {};
+                    payload['region'] = this.region;
+                    payload['country'] = this.country;
+                    payload['equipment'] = this.equipment;
+                    payload['equipmentRequirement'] = this.equipmentRequirement;
+                    payload['requirementDescription'] = this.requirementDescription;
+                    payload['status'] = this.status;
+                    payload['effectiveDate'] = this.effectiveDate;
+                    payload['enforcement'] = this.enforcement;
+                    payload['effectiveTo'] = this.effectiveTo;
+                    payload['reference'] = this.reference;
+                    payload['attachment'] = this.attachment;
+                    result['parameters'] = payload;
+                    result['flag'] = 'EquipmentDatabase';
+                    url = window.location.origin + '/searchContent';
+                    axios.post(url, result).then(response=>{
+                        this.equipmentData = response.data;
+                        this.emptyFieldsEquip();
+                    });
+               },
                searchContent : function(){
                   payload = {};
-                  result = [];
+                  result = {};
                   payload['icao'] = this.icao;
                   payload['name'] = this.name;
                   payload['origin'] = this.origin;
                   payload['destination'] = this.destination;
                   payload['aircrafttype'] = this.aircrafttype;
-                  url = window.location.origin + '/searchAirlineRoute';
+                  result['parameters'] = payload;
+                  result['flag'] = 'AirlineRoute'
+                  url = window.location.origin + '/searchContent';
                   // payload = JSON.stringify(payload)
-                  axios.post(url, payload).then(response =>{
+                  axios.post(url, result).then(response =>{
                      this.airlineRouteData = response.data
                      this.emptyFields()
                   });

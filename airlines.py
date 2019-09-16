@@ -17,6 +17,7 @@ def home():
     con = sql.connect("airlines.db")
     con.row_factory = dict_factory
     cur = con.cursor()
+
     cur.execute('select * from AirlineRoute')
     content = cur.fetchall()
 
@@ -28,22 +29,33 @@ def home():
     name = cur.fetchall()
     name = [ic['name'] for ic in name]
 
-    con.close() 
-    return render_template('home.html', content=content, icao=icao, name=name)
+    cur.execute('select * from EquipmentDatabase')
+    equipData = cur.fetchall()
 
-@app.route('/searchAirlineRoute', methods=['POST'])
-def searchAirlineRoute():
+    cur.execute('select distinct region from EquipmentDatabase')
+    region = cur.fetchall()
+    region = [ic['region'] for ic in region]
+    
+    cur.execute('select distinct country from EquipmentDatabase')
+    country = cur.fetchall()
+    country = [ic['country'] for ic in country]
+
+    con.close() 
+    return render_template('home.html', content=content, icao=icao, equipData=equipData, name=name, region=region, country=country)
+
+@app.route('/searchContent', methods=['POST'])
+def searchContent():
     req_data = request.get_data()
     req_data = json.loads(req_data)
     whereConditions = []
-    for key,value in req_data.items():
+    for key,value in req_data['parameters'].items():
         if value is not '':
             whereConditions.append("{} = '{}'".format(key, value))
     whereConditions = ' AND '.join(whereConditions)
     if whereConditions == '':
-        sql2 = 'SELECT * FROM AirlineRoute'
+        sql2 = 'SELECT * FROM ' + req_data['flag']
     else:
-        sql2 = 'SELECT * FROM AirlineRoute WHERE ' + whereConditions
+        sql2 = 'SELECT * FROM ' + req_data['flag'] + ' WHERE ' + whereConditions
     
     con = sql.connect("airlines.db")
     con.row_factory = dict_factory

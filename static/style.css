@@ -1,7 +1,5 @@
 .Table{
     display: table;
-    width:80%;
-    margin:auto
  }
  .Heading{
     display: table-row;
@@ -10,16 +8,28 @@
     background-color:white
  }
  .airlineSearch{
-    width: 80%;
-    margin: auto;
     display: flex;
+ }
+ .Table, .airlineSearch{
+     width:95%;
+     margin:auto
  }
  .searchField{
      width:20%;
      font-size:1.1em
  }
+ .searchFieldEquipment{
+     width:25%;
+     font-size:1.1em
+ }
+ .searchFieldEquipment input, .searchFieldEquipment select{
+    width: 95%;
+    margin: 6px 0;
+    height: 30px;
+ }
  .searchField input, .searchField select{
      height:30px;
+     margin: 6px 0;
      width:90%
  }
  .Row{
@@ -33,10 +43,16 @@
     padding-right: 5px;
     width:20%;
  }
+ .equipData .Cell{
+    width:unset !important;
+}
+.equipData{
+    margin-bottom:30px
+}
  .title{
     background-color: white;
     font-size: 4em;
-    margin: 10vh auto;
+    margin: 4vh auto;
     width: fit-content;
     margin-bottom: 5vh;
     padding: 12px 26px;
