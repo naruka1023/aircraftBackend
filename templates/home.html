@@ -250,7 +250,20 @@
                   url = window.location.origin + '/searchContent';
                   // payload = JSON.stringify(payload)
                   axios.post(url, result).then(response =>{
-                     this.airlineRouteData = response.data
+                     var countryList = [];
+                     this.airlineRouteData = response.data;
+                     this.airlineRouteData.forEach((content, idx) =>{
+                        countryList.push(content.origin);
+                        countryList.push(content.destination);
+                     })
+                     countryList = [...new Set(countryList)];
+                     console.log(countryList);
+                     payload = {};
+                     payload['countries'] = countryList
+                     url = window.location.origin + '/searchRelativeCountries'
+                     axios.post(url,payload).then(response =>{
+                        this.equipmentData = response.data
+                     });
                      this.emptyFields()
                   });
                }

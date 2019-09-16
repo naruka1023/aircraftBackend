@@ -5,6 +5,8 @@ import requests
 import json
 app = Flask(__name__)
 
+relativeCountryQuery = ''
+
 def dict_factory(cursor, row):
     d = {}
     for idx, col in enumerate(cursor.description):
@@ -43,6 +45,27 @@ def home():
     con.close() 
     return render_template('home.html', content=content, icao=icao, equipData=equipData, name=name, region=region, country=country)
 
+@app.route('/searchRelativeCountries', methods=['POST'])
+def searchRelativeCountries():
+    global relativeCountryQuery
+
+    req_data = request.get_data()
+    req_data = json.loads(req_data)
+    whereConditions = []
+    for country in req_data['countries']:
+        whereConditions.append("country = '{}'".format(country))
+    whereConditions = " OR ".join(whereConditions)
+    relativeCountryQuery = whereConditions
+    sql2 = 'SELECT * FROM EquipmentDatabase WHERE ' + relativeCountryQuery
+
+    con = sql.connect("airlines.db")
+    con.row_factory = dict_factory
+    cur = con.cursor()
+    cur.execute(sql2)
+    content = cur.fetchall()
+
+    return json.dumps(content)
+
 @app.route('/searchContent', methods=['POST'])
 def searchContent():
     req_data = request.get_data()
@@ -62,5 +85,6 @@ def searchContent():
     cur = con.cursor()
     cur.execute(sql2)
     content = cur.fetchall()
+    con.close()
 
     return json.dumps(content)
