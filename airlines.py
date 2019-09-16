@@ -68,6 +68,7 @@ def searchRelativeCountries():
 
 @app.route('/searchContent', methods=['POST'])
 def searchContent():
+    global relativeCountryQuery
     req_data = request.get_data()
     req_data = json.loads(req_data)
     whereConditions = []
@@ -77,9 +78,16 @@ def searchContent():
     whereConditions = ' AND '.join(whereConditions)
     if whereConditions == '':
         sql2 = 'SELECT * FROM ' + req_data['flag']
+        if relativeCountryQuery != '' and req_data['flag'] == "EquipmentDatabase":
+            sql2 += ' WHERE ' + relativeCountryQuery
+
     else:
         sql2 = 'SELECT * FROM ' + req_data['flag'] + ' WHERE ' + whereConditions
-    
+        if relativeCountryQuery != '' and req_data['flag'] == "EquipmentDatabase":
+            sql2 += ' AND (' + relativeCountryQuery + ')'
+
+    print(sql2)
+
     con = sql.connect("airlines.db")
     con.row_factory = dict_factory
     cur = con.cursor()
