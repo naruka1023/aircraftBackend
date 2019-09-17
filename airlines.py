@@ -3,6 +3,8 @@ from flask import Flask, render_template, redirect, url_for, request, session
 import sqlite3 as sql
 import requests
 import json
+import datetime
+
 app = Flask(__name__)
 
 relativeCountryQuery = ''
@@ -91,13 +93,12 @@ def searchContent():
                 sql2 += ' WHERE effectiveYear >= "' + dateStart + '"'
             else:
                 sql2 += ' WHERE effectiveYear BETWEEN "' + dateStart + '" AND "' + dateEnd + '"'
-            sql2 += ' AND (' + relativeCountryQuery + ')'
+
+            if relativeCountryQuery != '' and req_data['flag'] == "EquipmentDatabase":    
+                sql2 += ' AND (' + relativeCountryQuery + ')'
         else:
-            if relativeCountryQuery != '' and req_data['flag'] == "EquipmentDatabase":
-                if dateEnd != '':
-                    sql2 += ' AND (' + relativeCountryQuery + ')'
-                else:
-                    sql2 += ' WHERE ' + relativeCountryQuery
+            if relativeCountryQuery != '' and req_data['flag'] == "EquipmentDatabase":                
+                sql2 += ' WHERE ' + relativeCountryQuery
 
     else:
         sql2 = 'SELECT * FROM ' + req_data['flag'] + ' WHERE ' + whereConditions
@@ -109,7 +110,6 @@ def searchContent():
         if relativeCountryQuery != '' and req_data['flag'] == "EquipmentDatabase":
             sql2 += ' AND (' + relativeCountryQuery + ')'
 
-    print(sql2)
 
     con = sql.connect("airlines.db")
     con.row_factory = dict_factory
