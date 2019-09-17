@@ -72,17 +72,40 @@ def searchContent():
     req_data = request.get_data()
     req_data = json.loads(req_data)
     whereConditions = []
+    dateStart = ''
+    dateEnd = ''
+
     for key,value in req_data['parameters'].items():
         if value is not '':
-            whereConditions.append("{} = '{}'".format(key, value))
+            if key == 'effectiveDateStart':
+                dateStart = str(value)
+            elif key == 'effectiveDateEnd':
+                dateEnd = str(value)
+            else:
+                whereConditions.append("{} = '{}'".format(key, value))
     whereConditions = ' AND '.join(whereConditions)
     if whereConditions == '':
         sql2 = 'SELECT * FROM ' + req_data['flag']
-        if relativeCountryQuery != '' and req_data['flag'] == "EquipmentDatabase":
-            sql2 += ' WHERE ' + relativeCountryQuery
+        if dateStart != '':
+            if dateEnd == '':
+                sql2 += ' WHERE effectiveYear >= "' + dateStart + '"'
+            else:
+                sql2 += ' WHERE effectiveYear BETWEEN "' + dateStart + '" AND "' + dateEnd + '"'
+            sql2 += ' AND (' + relativeCountryQuery + ')'
+        else:
+            if relativeCountryQuery != '' and req_data['flag'] == "EquipmentDatabase":
+                if dateEnd != '':
+                    sql2 += ' AND (' + relativeCountryQuery + ')'
+                else:
+                    sql2 += ' WHERE ' + relativeCountryQuery
 
     else:
         sql2 = 'SELECT * FROM ' + req_data['flag'] + ' WHERE ' + whereConditions
+        if dateStart != '':
+            if dateEnd == '':
+                sql2 += ' AND effectiveYear >= ' + dateStart
+            else:
+                sql2 += ' AND effectiveYear BETWEEN ' + dateStart + ' AND ' + dateEnd
         if relativeCountryQuery != '' and req_data['flag'] == "EquipmentDatabase":
             sql2 += ' AND (' + relativeCountryQuery + ')'
 

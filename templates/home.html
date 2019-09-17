@@ -67,13 +67,18 @@
                       <option value='In Approval Process'>In Approval Process</option>
                    </select> 
                </div>
-               <div class='searchFieldEquipment'>
-                  <div>Effective date</div>   
-                  <div id="datepicker" style='width:95%; margin-top:6px; height:30px' class="input-group date" >
-                     <input v-model='effectiveDate' style='cursor:pointer; margin:unset; height:30px' class="form-control" data-date-format="dd M yyyy" id='dateInput' type="text" readonly />
-                     <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
-                  </div>
-               </div>
+               <div class='searchFieldEquipment'><span>Effective Date Start</span>
+                  <select v-model = 'effectiveDateStart'>
+                     <option v-for="a in years" v-bind:value="a">{% raw %}{{a}}{% endraw %}</option>
+                  </select> 
+              </div>
+               <div class='searchFieldEquipment'><span>Effective Date End</span>
+                  <select v-model = 'effectiveDateEnd' id='dateEndInput'>
+                     <option v-for="a in endYears" v-bind:value="a">{% raw %}{{a}}{% endraw %}</option>
+                  </select> 
+              </div>
+            </div>
+            <div class='airlineSearch'>
                <div class='searchFieldEquipment'><span>Enforcement</span>
                    <select v-model = 'enforcement'>
                        <option value='Carrier'>Carrier</option>
@@ -82,8 +87,6 @@
                        <option value='Carrier/Route'>Carrier/Route</option>
                    </select> 
                </div>
-           </div>
-           <div class='airlineSearch'>
                 <div class='searchFieldEquipment'><span>Effective to</span><input type='text' v-model='effectiveTo'/></div>
                 <div class='searchFieldEquipment'><span>Reference</span><input type='text' v-model='reference'/></div>
                 <div class='searchFieldEquipment'><span>Attachment</span><input type='text' v-model='attachment'/></div>
@@ -174,11 +177,14 @@
                 equipmentRequirement:'',
                 requirementDescription:'',
                 status:'',
-                effectiveDate:'',
+                effectiveDateStart:'',
+                effectiveDateEnd:'',
                 enforcement:'',
                 effectiveTo:'',
                 reference:'',
                 attachment:'',
+                years:[],
+                endYears:[],
                 airlineRouteData:{{content|tojson}},
                 equipmentData:{{equipData|tojson}},
                 countryList:{{country|tojson}},
@@ -187,7 +193,8 @@
                 nameList:{{name|tojson}}
             },
             mounted:function(){
-               console.log(this.airlineRouteData);
+               $('#dateEndInput').css('background-color', 'gray').prop('disabled', true)
+               this.refreshYear();
                $('#dateInput').datepicker({
                   autoclose:true
                }).datepicker().on(
@@ -195,6 +202,27 @@
                );
             },
             methods :{
+               refreshYear: function(){
+                  temp = []
+                  this.years = [];
+                  this.endYears = [];
+                  this.equipmentData.forEach((content)=>{
+                     if(content.effectiveDate != null && content.effectiveDate != 'Present'){
+                        year = content.effectiveDate.split(' ')[2]
+                        temp.push(parseInt(year))
+                     }
+                  });
+                  temp.sort(function(a, b){return a-b});
+                  lowest = temp[0];
+                  highest = temp[temp.length - 1];
+                  i = lowest;
+                  while(i <= highest){
+                     this.years.push(i);
+                     i++;
+                  }
+                  console.log(this.years)
+                  this.endYears = this.years;
+               },
                emptyFields : function(){
                   this.icao = '';
                   this.name = '';
@@ -209,7 +237,8 @@
                   this.equipmentRequirement = '';
                   this.requirementDescription = ''
                   this.status = ''
-                  this.effectiveDate = '';
+                  this.effectiveDateStart = '';
+                  this.effectiveDateEnd = '';
                   this.enforcement = '';
                   this.effectiveTo = '';
                   this.reference = '';
@@ -224,7 +253,8 @@
                     payload['equipmentRequirement'] = this.equipmentRequirement;
                     payload['requirementDescription'] = this.requirementDescription;
                     payload['status'] = this.status;
-                    payload['effectiveDate'] = this.effectiveDate;
+                    payload['effectiveDateStart'] = this.effectiveDateStart;
+                    payload['effectiveDateEnd'] = this.effectiveDateEnd;
                     payload['enforcement'] = this.enforcement;
                     payload['effectiveTo'] = this.effectiveTo;
                     payload['reference'] = this.reference;
@@ -265,7 +295,25 @@
                         this.equipmentData = response.data
                      });
                      this.emptyFields()
+                     this.emptyFieldsEquip()
                   });
+               }
+            },
+            watch: {
+               equipmentData:function(){
+                  this.refreshYear();
+               },
+               effectiveDateStart: function(){
+                  if(this.effectiveDateStart == '' || this.effectiveDateStart == undefined){
+                     $('#dateEndInput').css('background-color', 'gray').prop("disabled", true)
+                  }else{
+                     $('#dateEndInput').css('background-color', 'unset').prop("disabled", false)
+                  }
+                  index = this.years.indexOf(this.effectiveDateStart);
+                  index++;
+                  this.endYears = this.years.slice(index, this.years.length);
+                  // this.endYears.sort(function(a, b){return a-b});
+                  // this.endYears = [...new Set(this.endYears)]
                }
             }
          });
