@@ -1,1 +1,1 @@
-web gunicorn airlines:app
+web gunicorn app:airlines
