@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, session
+;dfrom flask import Flask, render_template, redirect, url_for, request, session
 # from flask_socketio import SocketIO
 import sqlite3 as sql
 import requests
@@ -119,3 +119,6 @@ def searchContent():
     con.close()
 
     return json.dumps(content)
+
+    if __name__ == '__main__':
+        app.run()
