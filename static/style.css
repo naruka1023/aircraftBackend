@@ -7,11 +7,15 @@
     text-align: center;
     background-color:white
  }
+ .fa:hover, .fas:hover{
+    color:red;
+    cursor:pointer
+ }
  .airlineSearch{
     display: flex;
  }
  .Table, .airlineSearch{
-     width:95%;
+     width:90%;
      margin:auto
  }
  .searchField{

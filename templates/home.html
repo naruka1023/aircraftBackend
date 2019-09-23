@@ -3,9 +3,10 @@
         <title>Avionics</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.7.0/css/all.css' integrity='sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ' crossorigin='anonymous'>
+
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
         <link rel="icon" href='{{ url_for("static", filename="airplaneIcon.png") }}'>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css" rel="stylesheet" type="text/css" />
     </head>
     <body style='background-image: url("{{ url_for("static", filename="cloud.jpg") }}");background-repeat:no-repeat; background-size:100% 100%'>
         <div id='databinding'>
@@ -27,12 +28,15 @@
             </div>
             
             <div style='width:fit-content; margin:15px auto'><button @click="searchContent" type='button' class="btn btn-primary">SEARCH</button></div>
+            <div style='overflow:hidden; width:95%; margin:auto; margin-bottom:15px'><i class="fa fa-plus" style="float:right; font-size:36px"></i></div>
             <div class='Table'>
                <div class='Heading'>
                   <div class='Cell'>ICAO code (3 code letter)</div>
                   <div class='Cell'>Name of airline</div>
                   <div class='Cell'>Flight Information Region</div>
                   <div class='Cell'>Aircraft Type</div>
+                  <div class='Cell' style='width:10% !important'>Edit</div>
+                  <div class='Cell' style='width:10% !important'>Remove</div>                  
                </div>
                <airlineroute
                   v-for = "(item, index) in airlineRouteData"
@@ -90,7 +94,8 @@
                 <div class='searchFieldEquipment'><span>Attachment</span><input type='text' v-model='attachment'/></div>
             </div>
            <div style='width:fit-content; margin:15px auto'><button @click="searchContentEquipment" type='button' class="btn btn-primary">SEARCH</button></div>
-            <div class='Table equipData'>
+           <div style='overflow:hidden; width:95%; margin:auto; margin-bottom:15px'><i class="fa fa-plus" style="float:right; font-size:36px"></i></div> 
+           <div class='Table equipData'>
                <div class='Heading'>
                   <div class='Cell'>Region</div>
                   <div class='Cell'>Country</div>
@@ -103,6 +108,8 @@
                   <div class='Cell'>Effective to</div>
                   <div class='Cell'>Reference</div>
                   <div class='Cell'>Attachment</div>
+                  <div class='Cell'>Edit</div>
+                  <div class='Cell'>Remove</div>
                </div>
                <equipmentdata
                   v-for = "(item, index) in equipmentData"
@@ -119,7 +126,7 @@
 
 
             Vue.component('equipmentdata',{
-               template : '<div class="Row" v-bind:style = "styleobj"><div class = "Cell">{% raw %}{{item.region}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.country}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.equipment}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.equipmentRequirement}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.requirementDescription}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.status}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.effectiveDate}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.enforcement}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.effectiveTo}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.reference}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.attachment}}{% endraw %}</div></div>',
+               template : '<div class="Row" v-bind:style = "styleobj"><div class = "Cell">{% raw %}{{item.region}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.country}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.equipment}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.equipmentRequirement}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.requirementDescription}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.status}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.effectiveDate}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.enforcement}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.effectiveTo}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.reference}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.attachment}}{% endraw %}</div><div class="Cell"><i class="fas fa-edit" style="padding:20px; font-size:20px"></i></div><div class="Cell"><i class="fa fa-remove" style="padding:20px; font-size:20px"></i></div></div>',
                props: ['item' , 'index'],
                data: function() {
                   return {
@@ -140,7 +147,7 @@
                }
             });
             Vue.component('airlineroute',{
-               template : '<div class = "Row"  v-bind:style = "styleobj"><div class = "Cell">{% raw %}{{item.icao}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.name}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.fir}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.aircraftType}}{% endraw %}</div></div>',
+               template : '<div class = "Row"  v-bind:style = "styleobj"><div class = "Cell">{% raw %}{{item.icao}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.name}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.fir}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.aircraftType}}{% endraw %}</div><div class="Cell" style="text-align:center; width: 10% !important"><i class="fas fa-edit" style="font-size:20px"></i></div><div class="Cell" style="padding: 10px; text-align:center; width:10% !important"><i class="fa fa-remove" style="padding: 10px; font-size:20px"></i></div></div>',
                props: ['item' , 'index'],
                data: function() {
                   return {
