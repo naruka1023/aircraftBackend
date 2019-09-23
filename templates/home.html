@@ -22,8 +22,7 @@
                      <option v-for="a in nameList" v-bind:value="a">{% raw %}{{a}}{% endraw %}</option>
                   </select> 
               </div>
-              <div class='searchField'><span>Origin</span><input type='text' v-model='origin'/></div>
-              <div class='searchField'><span>Destination</span><input type='text' v-model='destination'/></div>
+              <div class='searchField'><span>Flight Information Region</span><input type='text' v-model='fir'/></div>
               <div class='searchField'><span>Aircraft Type</span><input type='text' v-model='aircrafttype'/></div>
             </div>
             
@@ -32,8 +31,7 @@
                <div class='Heading'>
                   <div class='Cell'>ICAO code (3 code letter)</div>
                   <div class='Cell'>Name of airline</div>
-                  <div class='Cell'>Origin</div>
-                  <div class='Cell'>Destination</div>
+                  <div class='Cell'>Flight Information Region</div>
                   <div class='Cell'>Aircraft Type</div>
                </div>
                <airlineroute
@@ -142,7 +140,7 @@
                }
             });
             Vue.component('airlineroute',{
-               template : '<div class = "Row"  v-bind:style = "styleobj"><div class = "Cell">{% raw %}{{item.icao}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.name}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.origin}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.destination}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.aircraftType}}{% endraw %}</div></div>',
+               template : '<div class = "Row"  v-bind:style = "styleobj"><div class = "Cell">{% raw %}{{item.icao}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.name}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.fir}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.aircraftType}}{% endraw %}</div></div>',
                props: ['item' , 'index'],
                data: function() {
                   return {
@@ -168,8 +166,7 @@
                 emptyFlag:true,
                 icao:'',
                 name:'',
-                origin:'', 
-                destination:'',
+                fir:'',
                 aircrafttype:'',
                 region:'',
                 country:'',
@@ -226,8 +223,7 @@
                emptyFields : function(){
                   this.icao = '';
                   this.name = '';
-                  this.origin = '';
-                  this.destination = '';
+                  this.fir = '';
                   this.aircrafttype = ''
                },
                emptyFieldsEquip : function(){
@@ -272,8 +268,7 @@
                   result = {};
                   payload['icao'] = this.icao;
                   payload['name'] = this.name;
-                  payload['origin'] = this.origin;
-                  payload['destination'] = this.destination;
+                  payload['fir'] = this.fir;
                   payload['aircrafttype'] = this.aircrafttype;
                   result['parameters'] = payload;
                   result['flag'] = 'AirlineRoute'
@@ -283,8 +278,7 @@
                      var countryList = [];
                      this.airlineRouteData = response.data;
                      this.airlineRouteData.forEach((content, idx) =>{
-                        countryList.push(content.origin);
-                        countryList.push(content.destination);
+                        countryList.push(content.fir);
                      })
                      countryList = [...new Set(countryList)];
                      console.log(countryList);
