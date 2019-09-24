@@ -28,7 +28,7 @@
             </div>
             
             <div style='width:fit-content; margin:15px auto'><button @click="searchContent" type='button' class="btn btn-primary">SEARCH</button></div>
-            <div style='overflow:hidden; width:95%; margin:auto; margin-bottom:15px'><i class="fa fa-plus" style="float:right; font-size:36px"></i></div>
+            <div style='overflow:hidden; width:90%; margin:auto; margin-bottom:15px'><i class="fa fa-plus" style="float:right; font-size:36px"></i></div>
             <div class='Table'>
                <div class='Heading'>
                   <div class='Cell'>ICAO code (3 code letter)</div>
@@ -40,7 +40,8 @@
                </div>
                <airlineroute
                   v-for = "(item, index) in airlineRouteData"
-                  v-bind:item = 'item'>
+                  v-bind:item = 'item'
+                  v-bind:index = 'index'>
                </airlineroute>
             </div>
 
@@ -94,7 +95,7 @@
                 <div class='searchFieldEquipment'><span>Attachment</span><input type='text' v-model='attachment'/></div>
             </div>
            <div style='width:fit-content; margin:15px auto'><button @click="searchContentEquipment" type='button' class="btn btn-primary">SEARCH</button></div>
-           <div style='overflow:hidden; width:95%; margin:auto; margin-bottom:15px'><i class="fa fa-plus" style="float:right; font-size:36px"></i></div> 
+           <div style='overflow:hidden; width:90%; margin:auto; margin-bottom:15px'><i @click='clickAdd' class="fa fa-plus" style="float:right; font-size:36px"></i></div> 
            <div class='Table equipData'>
                <div class='Heading'>
                   <div class='Cell'>Region</div>
@@ -113,20 +114,105 @@
                </div>
                <equipmentdata
                   v-for = "(item, index) in equipmentData"
-                  v-bind:item = 'item'>
+                  v-bind:item = 'item'
+                  v-bind:index= 'index'>
                </equipmentdata>
             </div>
         </div>
+        <!-- Modal -->
+         <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+               <!-- Modal content-->
+               <div class="modal-content" id='modalbinding'>
+                  <div class="modal-header">
+                     <button type="button" class="close" data-dismiss="modal">&times;</button>
+                     <h4 class="modal-title">{% raw %}{{title}}{% endraw %}</h4>
+                  </div>
+                  <div class="modal-body">
+                     <div>
+                        <form class='editForm' id='equipmentForm'>
+                           <label>Region</label><br><select id='region'></select>
+                           <br><label>Country</label><br><select name='country' id='country'></select>
+                           <br><label>Equipment</label><br><input type='text' name='equipment' id='equipment'>
+                           <br><label>Equipment Requirement</label><br><input type='text' name='equipmentRequirement' id='equipmentRequirement'>
+                           <br><label>Requirement Description</label><br><input type='text' name='requirementDescription' id='requirementDescription'>
+                           <br><label>Status</label><br>
+                           <select name='status' id='status'>
+                              <option value="Effective">Effective</option>
+                              <option value="Not Effective">Not Effective</option>
+                              <option value="In Approval Process">In Approval Process</option>
+                           </select>
+                           <br><label>Effective Date</label><br><input type='text' name='effectiveDate' id='effectiveDate'>
+                           <br><label>Enforcement</label>
+                           <br>
+                           <select name='enforcement' id='enforcement'>
+                                 <option value="Carrier">Carrier</option>
+                                 <option value="Route">Route</option>
+                                 <option value="Aircraft Type">Aircraft Type</option>
+                                 <option value="Carrier/Route">Carrier/Route</option>
+                              </select>
+                           <br><label>Effective To</label><br><textarea rows='10' cols="50" name='effectiveTo' id='effectiveTo'></textarea>
+                           <br><label>Reference</label><br><input type='text' name='reference' id='reference'>
+                           <br><label>Attachment</label><br><input type='text' name='attachment' id='attachment'>
+                           <div style='display:none'><input type='text' name='edID' id='edID'></div>
+                           <div style='display:none'><input type='text' name='index' id='index'></div>
+                        </form>
+                        <div style="width: fit-content; margin: auto; margin-top: 20px;">
+                           <input v-show='editFlag' type="submit" @click='confirm("updateContent")'>
+                           <input v-show='addFlag' type="submit" @click='confirm("addContent")'>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.0/vue.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.js"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script>
-
-
+         var vm2 = new Vue({
+            el:'#modalbinding',
+            data:{
+               editFlag:false,
+               addFlag:false,
+               title: ''
+            },
+            methods:{
+               confirm: function(chose){
+                  contents = document.getElementById('equipmentForm').elements;
+                  payload = []
+                  index = 0
+                  for(content of contents){
+                     if(content.id == 'index'){
+                        index = content.value
+                     }else{
+                        temp = {
+                           'id': content.id,
+                           'value': content.value
+                        }
+                        payload.push(temp)
+                     }
+                  }
+                  finalPayload = {}
+                  finalPayload['payload'] = payload;
+                  finalPayload['index'] = index;
+                  url = window.location.origin + '/' + chose;
+                  console.log(finalPayload['payload'])
+                  axios.post(url, finalPayload).then(response=>{
+                     if(chose == 'updateContent'){
+                        Vue.set(vm.equipmentData, index, response.data)
+                     }else{
+                        vm.equipmentData.push(response.data)
+                     }
+                     $('#myModal').modal('hide')
+                  });
+               }
+            }
+         })
             Vue.component('equipmentdata',{
-               template : '<div class="Row" v-bind:style = "styleobj"><div class = "Cell">{% raw %}{{item.region}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.country}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.equipment}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.equipmentRequirement}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.requirementDescription}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.status}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.effectiveDate}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.enforcement}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.effectiveTo}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.reference}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.attachment}}{% endraw %}</div><div class="Cell"><i class="fas fa-edit" style="padding:20px; font-size:20px"></i></div><div class="Cell"><i class="fa fa-remove" style="padding:20px; font-size:20px"></i></div></div>',
+               template : '<div class="Row" v-bind:style = "styleobj"><div class = "Cell">{% raw %}{{item.region}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.country}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.equipment}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.equipmentRequirement}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.requirementDescription}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.status}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.effectiveDate}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.enforcement}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.effectiveTo}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.reference}}{% endraw %}</div><div class = "Cell">{% raw %}{{item.attachment}}{% endraw %}</div><div class="Cell"><i class="fas fa-edit" @click="clickEdit(item, index)" style="padding:20px; font-size:20px"></i></div><div class="Cell"><i class="fa fa-remove" style="padding:20px; font-size:20px"></i></div></div>',
                props: ['item' , 'index'],
                data: function() {
                   return {
@@ -137,11 +223,36 @@
                   }
                },
                methods:{
+                  clickEdit: function(item, index){
+                     console.log(item)
+                     itemKeys = Object.entries(item)
+                     for(const [key, value] of itemKeys){
+                        switch(key){
+                           case 'region':
+                              $('#myModal #region').empty()
+                              for( x of {{region|tojson}}){
+                                 $('#myModal #region').append('<option value="' + x + '">' + x + '</option>');
+                              }
+                           break;
+                           case 'country':
+                           $('#myModal #country').empty()
+                              for( x of {{country|tojson}}){
+                                    $('#myModal #country').append('<option value="' + x + '">' + x + '</option>');
+                              }
+                        }
+                     $('#myModal #' + key).val(value);
+                     }
+                     $('#myModal #index').val(index);
+                     vm2.editFlag = true;
+                     vm2.addFlag = false;
+                     vm2.title = 'Edit'
+                     $("#myModal").modal();
+                  },
                   getcolor : function() {
-                     if (this.item.edID % 2) {
-                        return "lightcyan";
-                     } else {
+                     if (this.index % 2) {
                         return "powderblue";
+                     } else {
+                        return "lightcyan";
                      }
                   }
                }
@@ -159,10 +270,10 @@
                },
                methods:{
                   getcolor : function() {
-                     if (this.item.arID % 2) {
-                        return "lightcyan";
-                     } else {
+                     if (this.index % 2) {
                         return "powderblue";
+                     } else {
+                        return "lightcyan";
                      }
                   }
                }
@@ -206,6 +317,14 @@
                );
             },
             methods :{
+               clickAdd: function(){
+                  vm2.editFlag = false;
+                  vm2.addFlag = true;
+                  vm2.title = 'Add';
+                  $('#equipmentForm')[0].reset();
+                  $('#equipmentForm select').val('')
+                  $('#myModal').modal()
+               },
                refreshYear: function(){
                   temp = []
                   this.years = [];

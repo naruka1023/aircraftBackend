@@ -46,6 +46,63 @@ def home():
 
     con.close() 
     return render_template('home.html', content=content, icao=icao, equipData=equipData, name=name, region=region, country=country)
+@app.route('/addContent', methods=['POST'])
+def addContent():
+
+    req_data = request.get_data()
+    req_data = json.loads(request.get_data())
+    keys = []
+    values = []
+    for value in req_data['payload']:
+        if value['value'] != '':
+            keys.append(value['id'])
+            values.append(value['value'])
+    
+    keys = (', ').join(keys)
+    values = ['"' + value + '"' for value in values]
+    values = (', ').join(values)
+    sql2 = 'INSERT INTO EquipmentDatabase (' + keys + ') VALUES (' + values + ')'
+     
+     
+    con = sql.connect("airlines.db")
+    con.row_factory = dict_factory
+    cur = con.cursor()
+    cur.execute(sql2)
+    con.commit()
+
+    sql2 = 'SELECT * FROM EquipmentDatabase ORDER BY edID DESC'
+    cur.execute(sql2)
+    row = cur.fetchone()
+
+    con.close()
+    return row
+@app.route('/updateContent', methods=['POST'])
+def updateContent():
+
+    req_data = request.get_data()
+    req_data = json.loads(request.get_data())
+    updateConditions = []
+    ids = 0
+    for value in req_data['payload']:
+        if value['id'] == "edID":
+            ids = value['value']
+            print('id')
+        else:
+            updateConditions.append(value['id'] + '="' + value['value'] + '"')
+    updateConditions = (',').join(updateConditions)
+
+    con = sql.connect("airlines.db")
+    con.row_factory = dict_factory
+    cur = con.cursor()
+    print('update EquipmentDatabase set ' + updateConditions + ' where edID = ' + ids)
+    cur.execute('update EquipmentDatabase set ' + updateConditions + ' where edID = ' + ids)
+    con.commit()
+
+    cur.execute('select * from EquipmentDatabase where edID = ' + ids)
+    row = cur.fetchone()
+    row = json.dumps(row)
+    con.close()
+    return row
 
 @app.route('/searchRelativeCountries', methods=['POST'])
 def searchRelativeCountries():
@@ -65,7 +122,7 @@ def searchRelativeCountries():
     cur = con.cursor()
     cur.execute(sql2)
     content = cur.fetchall()
-
+    con.close()
     return json.dumps(content)
 
 @app.route('/searchContent', methods=['POST'])

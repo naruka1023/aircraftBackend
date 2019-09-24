@@ -31,6 +31,15 @@
     margin: 6px 0;
     height: 30px;
  }
+ .editForm{
+    width:fit-content;
+    margin:auto
+ }
+ .editForm input, .editForm select{
+    margin: 5px 0;
+    width:20vw;
+    height:25px
+ }
  .searchField input, .searchField select{
      height:30px;
      margin: 6px 0;
