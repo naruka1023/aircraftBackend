@@ -27,25 +27,46 @@ def home():
 
     cur.execute('select distinct icao from AirlineRoute') 
     icao = cur.fetchall()
-    icao = [ic['icao'] for ic in icao]
+    icao = [ic['icao'] for ic in icao  if ic['icao'] is not None]
     
     cur.execute('select distinct name from AirlineRoute') 
     name = cur.fetchall()
-    name = [ic['name'] for ic in name]
+    name = [ic['name'] for ic in name  if ic['name'] is not None]
 
     cur.execute('select * from EquipmentDatabase')
     equipData = cur.fetchall()
 
     cur.execute('select distinct region from EquipmentDatabase')
     region = cur.fetchall()
-    region = [ic['region'] for ic in region]
+    region = [ic['region'] for ic in region  if ic['region'] is not None]
     
     cur.execute('select distinct country from EquipmentDatabase')
     country = cur.fetchall()
-    country = [ic['country'] for ic in country]
-
+    country = [ic['country'] for ic in country if ic['country'] is not None]
+    print(country)
     con.close() 
     return render_template('home.html', content=content, icao=icao, equipData=equipData, name=name, region=region, country=country)
+
+@app.route('/removeContent', methods=['POST'])
+def removeContent():
+    req_data = request.get_data()
+    flag = json.loads(req_data)['load']
+    if flag == 'equip':
+        ids = json.loads(req_data)['edID']
+        sql2 = 'DELETE FROM EquipmentDatabase where edID = %d' % int(ids)
+    else:
+        ids = json.loads(req_data)['edID']
+        sql2 = 'DELETE FROM AirlineRoute where arID = %d' % int(ids)
+    
+    con = sql.connect("airlines.db")
+    con.row_factory = dict_factory
+    cur = con.cursor()
+    cur.execute(sql2)
+    con.commit()
+    
+    return 'success'
+
+
 @app.route('/addContent', methods=['POST'])
 def addContent():
 
@@ -53,6 +74,14 @@ def addContent():
     req_data = json.loads(request.get_data())
     keys = []
     values = []
+    table = ''
+    idFlag = ''
+    if req_data['flag'] == 'route':
+        table = 'AirlineRoute'
+        idFlag = 'arID'
+    else:
+        table = 'EquipmentDatabase'
+        idFlag = 'edID'
     for value in req_data['payload']:
         if value['value'] != '':
             keys.append(value['id'])
@@ -61,7 +90,7 @@ def addContent():
     keys = (', ').join(keys)
     values = ['"' + value + '"' for value in values]
     values = (', ').join(values)
-    sql2 = 'INSERT INTO EquipmentDatabase (' + keys + ') VALUES (' + values + ')'
+    sql2 = 'INSERT INTO ' + table + ' (' + keys + ') VALUES (' + values + ')'
      
      
     con = sql.connect("airlines.db")
@@ -70,7 +99,7 @@ def addContent():
     cur.execute(sql2)
     con.commit()
 
-    sql2 = 'SELECT * FROM EquipmentDatabase ORDER BY edID DESC'
+    sql2 = 'SELECT * FROM ' + table + ' ORDER BY ' + idFlag + ' DESC'
     cur.execute(sql2)
     row = cur.fetchone()
 
@@ -82,9 +111,17 @@ def updateContent():
     req_data = request.get_data()
     req_data = json.loads(request.get_data())
     updateConditions = []
+    table = '' 
+    idFlag = ''
+    if req_data['flag'] == 'equip':
+        idFlag = 'edID'
+        table = 'EquipmentDatabase'
+    else:
+        idFlag = 'arID'
+        table = 'AirlineRoute'
     ids = 0
     for value in req_data['payload']:
-        if value['id'] == "edID":
+        if value['id'] == "edID" or value['id'] == 'arID':
             ids = value['value']
             print('id')
         else:
@@ -94,11 +131,11 @@ def updateContent():
     con = sql.connect("airlines.db")
     con.row_factory = dict_factory
     cur = con.cursor()
-    print('update EquipmentDatabase set ' + updateConditions + ' where edID = ' + ids)
-    cur.execute('update EquipmentDatabase set ' + updateConditions + ' where edID = ' + ids)
+    print('update ' + table + ' set ' + updateConditions + ' where ' + idFlag + ' = ' + ids)
+    cur.execute('update ' + table + ' set ' + updateConditions + ' where ' + idFlag + ' = ' + ids)
     con.commit()
 
-    cur.execute('select * from EquipmentDatabase where edID = ' + ids)
+    cur.execute('select * from ' + table + ' where ' + idFlag + ' = ' + ids)
     row = cur.fetchone()
     row = json.dumps(row)
     con.close()
